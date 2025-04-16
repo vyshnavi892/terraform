@@ -42,3 +42,11 @@ resource "google_compute_instance" "my-instance" {
     }
   }
 }
+output "internal_ip" {
+  value = google_compute_instance.my-instance.network_interface.0.network_ip
+}
+
+output "cidr_range" {
+  value = google_compute_subnetwork.subnetwork.ip_cidr_range
+}
+
