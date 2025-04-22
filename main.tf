@@ -1,52 +1,25 @@
 provider "google" {
-  project     = var.project
-  region      = var.region
-  credentials = var.credentials
+  project     = "cool-lambda-454214-q5" 
+  region      = "us-central1"         
+  credentials = "keys.json"           
 }
-
-locals {
-  setup_name = "dxc"
+data "google_compute_network" "default_network" {
+  name = "default"
 }
-
-resource "google_compute_network" "my-vpc" {
-  name = var.my-vpc
-  
-}
-
-resource "google_compute_subnetwork" "subnetwork" {
-  name = var.subnetwork
-  ip_cidr_range = var.subnet_cidr
-  network = google_compute_network.my-vpc.id
-  region = "us-central1"
-}
-
-resource "google_compute_instance" "my-instance" {
-  name         = var.instance_type
-  machine_type = var.machine_type
-  zone         = var.zone
-
-  tags = [local.setup_name]
-    
-
+ 
+resource "google_compute_instance" "my_instance" {
+  name         = "my-instance"
+  machine_type = "e2-micro"
+  zone         = "us-central1-c"
+ 
   boot_disk {
     initialize_params {
-      image = var.os_image 
+      image = "debian-cloud/debian-11" 
     }
   }
-
+ 
   network_interface {
-    network = google_compute_network.my-vpc.id
-    subnetwork = google_compute_subnetwork.subnetwork.id
-
-    access_config {
-    }
+    network = data.google_compute_network.default_network.id
+    access_config {} 
   }
 }
-output "internal_ip" {
-  value = google_compute_instance.my-instance.network_interface.0.network_ip
-}
-
-output "cidr_range" {
-  value = google_compute_subnetwork.subnetwork.ip_cidr_range
-}
-
